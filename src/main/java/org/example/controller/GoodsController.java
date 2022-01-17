@@ -45,7 +45,7 @@ public class GoodsController {
     }
 
 
-    @RequestMapping(value = "/to_list",produces="text/html")
+    @RequestMapping(value = "/to_list", produces = "text/html")
     @ResponseBody
     public String list(HttpServletRequest request, HttpServletResponse response, Model model, SecKillUser user) {
         model.addAttribute("user", user);
@@ -70,10 +70,18 @@ public class GoodsController {
         return html;
     }
 
-    @RequestMapping("/detail/{goodsId}")
-    public String detail(Model model, SecKillUser user,
+    @RequestMapping(value = "/detail/{goodsId}", produces = "text/html")
+    @ResponseBody
+    public String detail(HttpServletRequest request, HttpServletResponse response, Model model, SecKillUser user,
                          @PathVariable("goodsId") long goodsId) {
         model.addAttribute("user", user);
+
+        //取缓存
+        String html = redisService.get(GoodsKey.getGoodsDetail, "" + goodsId, String.class);//url缓存和页面缓存区别就是加上了这个goodsId
+        if (!StringUtils.isEmpty(html)) {
+            return html;
+        }
+
         //查询商品列表
         GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
         model.addAttribute("goods", goods);
@@ -103,7 +111,19 @@ public class GoodsController {
         Date remainDate = calendar.getTime();
         model.addAttribute("remainDate", remainDate);
 
-        return "goods_detail";
+//        return "goods_detail";
+
+        SpringWebContext context = new SpringWebContext(request, response,
+                request.getServletContext(), request.getLocale(), model.asMap(), applicationContext);
+
+        //手动渲染
+        html = thymeleafViewResolver.getTemplateEngine().process("goods_detail", context);
+        if (!StringUtils.isEmpty(html)) {
+            redisService.set(GoodsKey.getGoodsDetail, "" + goodsId, html);
+        }
+
+        return html;
+
     }
 
 }
