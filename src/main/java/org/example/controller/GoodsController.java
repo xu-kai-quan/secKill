@@ -49,15 +49,15 @@ public class GoodsController {
     @ResponseBody
     public String list(HttpServletRequest request, HttpServletResponse response, Model model, SecKillUser user) {
         model.addAttribute("user", user);
-        //查询商品列表
-        List<GoodsVo> goodsList = goodsService.listGoodsVo();
-        model.addAttribute("goodsList", goodsList);
-
         //取缓存
         String html = redisService.get(GoodsKey.getGoodsList, "", String.class);
         if (!StringUtils.isEmpty(html)) {
             return html;
         }
+        //查询商品列表
+        List<GoodsVo> goodsList = goodsService.listGoodsVo();
+        model.addAttribute("goodsList", goodsList);
+
 
         SpringWebContext context = new SpringWebContext(request, response,
                 request.getServletContext(), request.getLocale(), model.asMap(), applicationContext);
@@ -75,7 +75,6 @@ public class GoodsController {
     public String detail(HttpServletRequest request, HttpServletResponse response, Model model, SecKillUser user,
                          @PathVariable("goodsId") long goodsId) {
         model.addAttribute("user", user);
-
         //取缓存
         String html = redisService.get(GoodsKey.getGoodsDetail, "" + goodsId, String.class);//url缓存和页面缓存区别就是加上了这个goodsId
         if (!StringUtils.isEmpty(html)) {
