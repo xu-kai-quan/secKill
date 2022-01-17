@@ -1,16 +1,25 @@
 package org.example.controller;
 
 import org.example.entity.SecKillUser;
+import org.example.redis.GoodsKey;
 import org.example.redis.RedisService;
 import org.example.service.GoodsService;
 import org.example.service.UsersService;
 import org.example.vo.GoodsVo;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.thymeleaf.spring4.context.SpringWebContext;
+import org.thymeleaf.spring4.view.ThymeleafViewResolver;
+import org.thymeleaf.util.StringUtils;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.swing.*;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -21,22 +30,44 @@ public class GoodsController {
     UsersService usersService;
     RedisService redisService;
     GoodsService goodsService;
+    ApplicationContext applicationContext;
+    ThymeleafViewResolver thymeleafViewResolver;
 
     @Inject
-    public GoodsController(UsersService usersService, RedisService redisService, GoodsService goodsService) {
+    public GoodsController(UsersService usersService, RedisService redisService,
+                           GoodsService goodsService, ApplicationContext applicationContext,
+                           ThymeleafViewResolver thymeleafViewResolver) {
         this.usersService = usersService;
         this.redisService = redisService;
         this.goodsService = goodsService;
+        this.applicationContext = applicationContext;
+        this.thymeleafViewResolver = thymeleafViewResolver;
     }
 
 
-    @RequestMapping("/to_list")
-    public String list(Model model, SecKillUser user) {
+    @RequestMapping(value = "/to_list",produces="text/html")
+    @ResponseBody
+    public String list(HttpServletRequest request, HttpServletResponse response, Model model, SecKillUser user) {
         model.addAttribute("user", user);
         //查询商品列表
         List<GoodsVo> goodsList = goodsService.listGoodsVo();
         model.addAttribute("goodsList", goodsList);
-        return "goods_list";
+
+        //取缓存
+        String html = redisService.get(GoodsKey.getGoodsList, "", String.class);
+        if (!StringUtils.isEmpty(html)) {
+            return html;
+        }
+
+        SpringWebContext context = new SpringWebContext(request, response,
+                request.getServletContext(), request.getLocale(), model.asMap(), applicationContext);
+
+        //手动渲染
+        html = thymeleafViewResolver.getTemplateEngine().process("goods_list", context);
+        if (!StringUtils.isEmpty(html)) {
+            redisService.set(GoodsKey.getGoodsList, "", html);
+        }
+        return html;
     }
 
     @RequestMapping("/detail/{goodsId}")
