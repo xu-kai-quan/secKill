@@ -3,7 +3,9 @@ package org.example.service;
 import org.example.dao.UsersDao;
 import org.example.entity.SecKillUser;
 import org.example.exception.GlobalException;
+import org.example.redis.KeyPrefix;
 import org.example.redis.RedisService;
+import org.example.redis.UserKey;
 import org.example.redis.UsersKey;
 import org.example.result.CodeMsg;
 import org.example.util.MD5Util;
@@ -31,14 +33,42 @@ public class UsersService {
     }
 
     public SecKillUser getById(Long id) {
-        return usersDao.getById(id);
+        //取缓存
+        SecKillUser user = redisService.get(UsersKey.getById, "" + id, SecKillUser.class);
+        if (user != null) {
+            return user;
+        }
+        //取数据库
+        user = usersDao.getById(id);
+        if (user != null) {
+            redisService.set(UsersKey.getById, "" + id, user);
+        }
+        return user;
+    }
+
+    public boolean updatePassword(String token, long id, String formPass) {
+        //取user
+        SecKillUser user = getById(id);
+        if (user == null) {
+            throw new GlobalException(CodeMsg.MOBILE_NOT_EXIST);
+        }
+        //更新数据库
+        SecKillUser toBeUpdate = new SecKillUser();
+        toBeUpdate.setId(id);
+        toBeUpdate.setPassword(MD5Util.formPassToDBPass(formPass, user.getSalt()));
+        usersDao.updatePassword(toBeUpdate);
+        //处理缓存
+        redisService.delete(UsersKey.getById, "" + id);
+        user.setPassword(toBeUpdate.getPassword());
+        redisService.set(UsersKey.token, token, user);
+        return true;
     }
 
     public SecKillUser getByToken(HttpServletResponse response, String token) {
         if (StringUtils.isEmpty(token)) {
             return null;
         }
-        SecKillUser user = redisService.get(UsersKey.token, token, SecKillUser.class);
+        SecKillUser user = redisService.get(UsersKey.token, token, SecKillUser.class);//对象缓存
         //延长有效期
         if (user != null) {
             addCookie(response, token, user);
