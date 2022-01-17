@@ -2,7 +2,7 @@ package org.example.controller;
 
 import org.example.entity.OrderInfo;
 import org.example.entity.SecKillOrder;
-import org.example.entity.Users;
+import org.example.entity.SecKillUser;
 import org.example.result.CodeMsg;
 import org.example.service.GoodsService;
 import org.example.service.OrderService;
@@ -31,7 +31,7 @@ public class secKillController {
 
 
     @RequestMapping("/do_secKill")
-    public String list(Model model, Users user, @RequestParam("goodsId") long goodsId) {
+    public String list(Model model, SecKillUser user, @RequestParam("goodsId") long goodsId) {
         model.addAttribute("user", user);
         if (user == null) {
             return "login";

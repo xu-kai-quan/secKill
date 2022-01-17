@@ -43,7 +43,7 @@ public class LoginController {
 
     @RequestMapping("/do_login")
     @ResponseBody
-    public Result<Boolean> doLogin(HttpServletResponse response, @Valid LoginVo loginVo) {
+    public Result<String> doLogin(HttpServletResponse response, @Valid LoginVo loginVo) {
         logger.info(loginVo.toString());
         //参数校验
 //        String passInput = loginVo.getPassword();
@@ -58,8 +58,8 @@ public class LoginController {
 //            return Result.error(CodeMsg.MOBILE_ERROR);
 //        }
         //登录
-        usersService.login(response, loginVo);
-        return Result.success(true);
+        String token = usersService.login(response, loginVo);
+        return Result.success(token);
     }
 
     @RequestMapping("/redis/set")

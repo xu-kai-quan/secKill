@@ -1,8 +1,7 @@
 package org.example.service;
 
-import com.sun.org.apache.regexp.internal.RE;
 import org.example.dao.UsersDao;
-import org.example.entity.Users;
+import org.example.entity.SecKillUser;
 import org.example.exception.GlobalException;
 import org.example.redis.RedisService;
 import org.example.redis.UsersKey;
@@ -31,15 +30,15 @@ public class UsersService {
         this.redisService = redisService;
     }
 
-    public Users getById(Long id) {
+    public SecKillUser getById(Long id) {
         return usersDao.getById(id);
     }
 
-    public Users getByToken(HttpServletResponse response, String token) {
+    public SecKillUser getByToken(HttpServletResponse response, String token) {
         if (StringUtils.isEmpty(token)) {
             return null;
         }
-        Users user = redisService.get(UsersKey.token, token, Users.class);
+        SecKillUser user = redisService.get(UsersKey.token, token, SecKillUser.class);
         //延长有效期
         if (user != null) {
             addCookie(response, token, user);
@@ -48,14 +47,14 @@ public class UsersService {
         return user;
     }
 
-    public boolean login(HttpServletResponse response, LoginVo loginVo) {
+    public String login(HttpServletResponse response, LoginVo loginVo) {
         if (loginVo == null) {
             throw new GlobalException(CodeMsg.SERVER_ERROR);
         }
         String mobile = loginVo.getMobile();
         String formPass = loginVo.getPassword();
         //判断手机号是否存在
-        Users user = getById(Long.parseLong(mobile));
+        SecKillUser user = getById(Long.parseLong(mobile));
         if (user == null) {
             throw new GlobalException(CodeMsg.MOBILE_NOT_EXIST);
         }
@@ -69,10 +68,10 @@ public class UsersService {
         //生成Cookie
         String token = UUIDUtil.uuid(); //token-令牌
         addCookie(response, token, user);
-        return true;
+        return token;
     }
 
-    private void addCookie(HttpServletResponse response, String token, Users user) {
+    private void addCookie(HttpServletResponse response, String token, SecKillUser user) {
 
         redisService.set(UsersKey.token, token, user);//把私人信息存放到第三方的缓存当中
         Cookie cookie = new Cookie(COOKIE_NAME_TOKEN, token);

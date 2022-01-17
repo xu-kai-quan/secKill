@@ -1,20 +1,16 @@
 package org.example.controller;
 
-import org.example.entity.Users;
+import org.example.entity.SecKillUser;
 import org.example.redis.RedisService;
 import org.example.service.GoodsService;
 import org.example.service.UsersService;
 import org.example.vo.GoodsVo;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.thymeleaf.util.StringUtils;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -35,7 +31,7 @@ public class GoodsController {
 
 
     @RequestMapping("/to_list")
-    public String list(Model model, Users user) {
+    public String list(Model model, SecKillUser user) {
         model.addAttribute("user", user);
         //查询商品列表
         List<GoodsVo> goodsList = goodsService.listGoodsVo();
@@ -44,7 +40,7 @@ public class GoodsController {
     }
 
     @RequestMapping("/detail/{goodsId}")
-    public String detail(Model model, Users user,
+    public String detail(Model model, SecKillUser user,
                          @PathVariable("goodsId") long goodsId) {
         model.addAttribute("user", user);
         //查询商品列表

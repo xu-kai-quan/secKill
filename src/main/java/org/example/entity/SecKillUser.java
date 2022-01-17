@@ -1,9 +1,8 @@
 package org.example.entity;
 
-import java.time.Instant;
 import java.util.Date;
 
-public class Users {
+public class SecKillUser {
     private Long id;
     private String nickname;
     private String password;

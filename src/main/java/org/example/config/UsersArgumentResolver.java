@@ -1,6 +1,6 @@
 package org.example.config;
 
-import org.example.entity.Users;
+import org.example.entity.SecKillUser;
 import org.example.service.UsersService;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ public class UsersArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
     public boolean supportsParameter(MethodParameter methodParameter) {
         Class<?> parameterType = methodParameter.getParameterType();
-        return parameterType == Users.class;//如果遇到users参数才会继续处理,执行下面的方法
+        return parameterType == SecKillUser.class;//如果遇到users参数才会继续处理,执行下面的方法
     }
 
     @Override

@@ -3,7 +3,7 @@ package org.example.service;
 import org.example.dao.OrderDao;
 import org.example.entity.OrderInfo;
 import org.example.entity.SecKillOrder;
-import org.example.entity.Users;
+import org.example.entity.SecKillUser;
 import org.example.vo.GoodsVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +26,7 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderInfo createOrder(Users user, GoodsVo goods) {
+    public OrderInfo createOrder(SecKillUser user, GoodsVo goods) {
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setCreateDate(new Date());
         orderInfo.setDeliveryAddrId(0L);

@@ -1,9 +1,7 @@
 package org.example.service;
 
-import org.example.dao.GoodsDao;
-import org.example.entity.Goods;
 import org.example.entity.OrderInfo;
-import org.example.entity.Users;
+import org.example.entity.SecKillUser;
 import org.example.vo.GoodsVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +22,7 @@ public class SecKillService {
     }
 
     @Transactional //事务原子操作
-    public OrderInfo secKill(Users user, GoodsVo goods) {
+    public OrderInfo secKill(SecKillUser user, GoodsVo goods) {
         //减库存
         goodsService.reduceStock(goods);
         //下订单 写入秒杀订单 ORDER_INFO SEC_KILL_ORDER
