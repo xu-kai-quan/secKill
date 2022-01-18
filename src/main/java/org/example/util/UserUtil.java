@@ -21,7 +21,7 @@ public class UserUtil {
         //生成用户
         for (int i = 0; i < count; i++) {
             SecKillUser user = new SecKillUser();
-            user.setId(13000000000L + i);
+            user.setId(15100000000L + i);
             user.setLoginCount(1);
             user.setNickname("user" + i);
             user.setRegisterDate(new Date());

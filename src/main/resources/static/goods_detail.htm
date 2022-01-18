@@ -47,10 +47,12 @@
                 <!--                <span if="${secKillStatus eq 2}">秒杀已结束</span>-->
             </td>
             <td>
-                <form id="secKillForm" method="post" action="/secKill/do_secKill">
-                    <button class="btn btn-primary btn-block" type="submit" id="buyButton">立即秒杀</button>
-                    <input type="hidden" name="goodsId" id="goodsId"/>
-                </form>
+                <!--                <form id="secKillForm" method="post" action="/secKill/do_secKill">-->
+                <!--                    <button class="btn btn-primary btn-block" type="submit" id="buyButton">立即秒杀</button>-->
+                <!--                    <input type="hidden" name="goodsId" id="goodsId"/>-->
+                <!--                </form>-->
+                <button class="btn btn-primary btn-block" type="button" id="buyButton" onclick="doSecKill()">立即秒杀</button>
+                <input type="hidden" name="goodsId" id="goodsId"/>
             </td>
         </tr>
         <tr>
@@ -69,6 +71,27 @@
 </div>
 </body>
 <script>
+    function doSecKill(){
+        $.ajax({
+            url: "/secKill/do_secKill",
+            type: "POST",
+            data:{
+                goodsId:$("#goodsId").val()
+            },
+            success: function (data) {
+                if (data.code == 0) {
+                    window.location.href="/order_detail.htm?orderId="+data.data.id;
+                } else {
+                    layer.msg(data.msg);
+                }
+            },
+            error: function () {
+                layer.msg("客户端请求有误");
+            }
+
+        })
+    }
+
 
     function render(detail) {
         var secKillStatus = detail.secKillStatus;
