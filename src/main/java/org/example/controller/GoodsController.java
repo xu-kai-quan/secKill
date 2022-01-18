@@ -3,8 +3,10 @@ package org.example.controller;
 import org.example.entity.SecKillUser;
 import org.example.redis.GoodsKey;
 import org.example.redis.RedisService;
+import org.example.result.Result;
 import org.example.service.GoodsService;
 import org.example.service.UsersService;
+import org.example.vo.GoodsDetailVo;
 import org.example.vo.GoodsVo;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
@@ -70,21 +72,14 @@ public class GoodsController {
         return html;
     }
 
-    @RequestMapping(value = "/detail/{goodsId}", produces = "text/html")
+    @RequestMapping(value = "/detail/{goodsId}")
     @ResponseBody
-    public String detail(HttpServletRequest request, HttpServletResponse response, Model model, SecKillUser user,
-                         @PathVariable("goodsId") long goodsId) {
+    public Result<GoodsDetailVo> detail(HttpServletRequest request, HttpServletResponse response, Model model, SecKillUser user,
+                                        @PathVariable("goodsId") long goodsId) {
         model.addAttribute("user", user);
-        //取缓存
-        String html = redisService.get(GoodsKey.getGoodsDetail, "" + goodsId, String.class);//url缓存和页面缓存区别就是加上了这个goodsId
-        if (!StringUtils.isEmpty(html)) {
-            return html;
-        }
-
         //查询商品列表
         GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
         model.addAttribute("goods", goods);
-
         long startAt = goods.getStartDate().getTime();
         long endAt = goods.getEndDate().getTime();
         long now = System.currentTimeMillis();
@@ -101,28 +96,66 @@ public class GoodsController {
             secKillStatus = 1;
             remainSeconds = 0;
         }
-
-        model.addAttribute("secKillStatus", secKillStatus);
-        model.addAttribute("remainSeconds", remainSeconds);
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(remainSeconds * 1000);//转换为毫秒
-        Date remainDate = calendar.getTime();
-        model.addAttribute("remainDate", remainDate);
-
-//        return "goods_detail";
-
-        SpringWebContext context = new SpringWebContext(request, response,
-                request.getServletContext(), request.getLocale(), model.asMap(), applicationContext);
-
-        //手动渲染
-        html = thymeleafViewResolver.getTemplateEngine().process("goods_detail", context);
-        if (!StringUtils.isEmpty(html)) {
-            redisService.set(GoodsKey.getGoodsDetail, "" + goodsId, html);
-        }
-
-        return html;
-
+        GoodsDetailVo vo = new GoodsDetailVo();
+        vo.setGoods(goods);
+        vo.setUser(user);
+        vo.setRemainSeconds(remainSeconds);
+        vo.setSecKillStatus(secKillStatus);
+        return Result.success(vo);
     }
+
+//    @RequestMapping(value = "/detail/{goodsId}", produces = "text/html")
+//    @ResponseBody
+//    public String detail(HttpServletRequest request, HttpServletResponse response, Model model, SecKillUser user,
+//                         @PathVariable("goodsId") long goodsId) {
+//        model.addAttribute("user", user);
+//        //取缓存
+//        String html = redisService.get(GoodsKey.getGoodsDetail, "" + goodsId, String.class);//url缓存和页面缓存区别就是加上了这个goodsId
+//        if (!StringUtils.isEmpty(html)) {
+//            return html;
+//        }
+//        GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
+//        model.addAttribute("goods", goods);
+//
+//        long startAt = goods.getStartDate().getTime();
+//        long endAt = goods.getEndDate().getTime();
+//        long now = System.currentTimeMillis();
+//        int secKillStatus = 0;
+//        int remainSeconds = 0;
+//
+//        if (now < startAt) {//秒杀还没开始，倒计时
+//            secKillStatus = 0;
+//            remainSeconds = (int) (startAt - now) / 1000;
+//        } else if (now > endAt) {//秒杀已经结束了
+//            secKillStatus = 2;
+//            remainSeconds = -1;
+//        } else {//秒杀进行中
+//            secKillStatus = 1;
+//            remainSeconds = 0;
+//        }
+//
+//        model.addAttribute("secKillStatus", secKillStatus);
+//        model.addAttribute("remainSeconds", remainSeconds);
+//
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTimeInMillis(remainSeconds * 1000);//转换为毫秒
+//        Date remainDate = calendar.getTime();
+//        model.addAttribute("remainDate", remainDate);
+//
+////        return "goods_detail";
+//
+//        SpringWebContext context = new SpringWebContext(request, response,
+//                request.getServletContext(), request.getLocale(), model.asMap(), applicationContext);
+//
+//        //手动渲染
+//        html = thymeleafViewResolver.getTemplateEngine().process("goods_detail", context);
+//        if (!StringUtils.isEmpty(html)) {
+//            redisService.set(GoodsKey.getGoodsDetail, "" + goodsId, html);
+//        }
+//
+//        return html;
+//
+//    }
+
 
 }
