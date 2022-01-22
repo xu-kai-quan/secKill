@@ -12,7 +12,7 @@ public class MQConfig {
     public static final String SEC_KILL_QUEUE = "queue";
 
     @Bean
-    public Queue queue() {
-        return new Queue(QUEUE, true);
+    public Queue secKillQueue() {
+        return new Queue(SEC_KILL_QUEUE, true);
     }
 }
