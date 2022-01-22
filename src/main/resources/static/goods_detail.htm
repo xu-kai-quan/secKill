@@ -51,7 +51,8 @@
                 <!--                    <button class="btn btn-primary btn-block" type="submit" id="buyButton">立即秒杀</button>-->
                 <!--                    <input type="hidden" name="goodsId" id="goodsId"/>-->
                 <!--                </form>-->
-                <button class="btn btn-primary btn-block" type="button" id="buyButton" onclick="doSecKill()">立即秒杀</button>
+                <button class="btn btn-primary btn-block" type="button" id="buyButton" onclick="doSecKill()">立即秒杀
+                </button>
                 <input type="hidden" name="goodsId" id="goodsId"/>
             </td>
         </tr>
@@ -71,16 +72,32 @@
 </div>
 </body>
 <script>
-    function doSecKill(){
+    function getSecKillResult(goodsId) {
+        g_showLoading();
         $.ajax({
-            url: "/secKill/do_secKill",
-            type: "POST",
-            data:{
-                goodsId:$("#goodsId").val()
+            url: "/secKill/result",
+            type: "GET",
+            data: {
+                goodsId: $("#goodsId").val(),
             },
             success: function (data) {
                 if (data.code == 0) {
-                    window.location.href="/order_detail.htm?orderId="+data.data.id;
+                    let result = data.data;
+                    if (result < 0) {
+                        layer.msg("对不起，秒杀失败");
+                    } else if (result == 0) {//继续轮询
+                        setTimeout(function () {
+                            getSecKillResult(goodsId);
+                        }, 200);
+                    } else {
+                        layer.confirm("恭喜你，秒杀成功！查看订单？", {btn: ["确定", "取消"]},
+                            function () {
+                                window.location.href = "/order_detail.htm?orderId=" + result;
+                            },
+                            function () {
+                                layer.closeAll();
+                            });
+                    }
                 } else {
                     layer.msg(data.msg);
                 }
@@ -88,7 +105,27 @@
             error: function () {
                 layer.msg("客户端请求有误");
             }
+        });
+    }
 
+    function doSecKill() {
+        $.ajax({
+            url: "/secKill/do_secKill",
+            type: "POST",
+            data: {
+                goodsId: $("#goodsId").val()
+            },
+            success: function (data) {
+                if (data.code == 0) {
+                    // window.location.href="/order_detail.htm?orderId="+data.data.id;
+                    getSecKillResult($("#goodsId").val());
+                } else {
+                    layer.msg(data.msg);
+                }
+            },
+            error: function () {
+                layer.msg("客户端请求有误");
+            }
         })
     }
 

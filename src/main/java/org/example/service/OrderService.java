@@ -33,6 +33,7 @@ public class OrderService {
 
     @Transactional
     public OrderInfo createOrder(SecKillUser user, GoodsVo goods) {
+        //订单
         OrderInfo orderInfo = new OrderInfo();
         orderInfo.setCreateDate(new Date());
         orderInfo.setDeliveryAddrId(0L);
@@ -43,10 +44,10 @@ public class OrderService {
         orderInfo.setOrderChannel(1);
         orderInfo.setStatus(0);
         orderInfo.setUserId(user.getId());
-        long orderId = orderDao.insertOrder(orderInfo);
-        System.out.println(orderId);
+        orderDao.insertOrder(orderInfo);
+        //秒杀订单
         SecKillOrder secKillOrder = new SecKillOrder();
-        secKillOrder.setOrderId(orderId);
+        secKillOrder.setOrderId(orderInfo.getId());
         secKillOrder.setGoodsId(goods.getId());
         secKillOrder.setUserId(user.getId());
         orderDao.insertSecKillOrder(secKillOrder);

@@ -1,6 +1,7 @@
 package org.example.controller;
 
 import org.example.entity.User;
+import org.example.rabbitmq.MQSender;
 import org.example.redis.RedisService;
 import org.example.redis.UserKey;
 import org.example.result.CodeMsg;
@@ -19,12 +20,22 @@ import javax.inject.Inject;
 public class SampleController {
     UserService userService;
     RedisService redisService;
+    MQSender mqSender;
 
     @Inject
-    public SampleController(UserService userService, RedisService redisService) {
+    public SampleController(UserService userService, RedisService redisService, MQSender mqSender) {
         this.userService = userService;
         this.redisService = redisService;
+        this.mqSender = mqSender;
     }
+
+//    @RequestMapping("/mq")
+//    @ResponseBody
+//    public Result<String> mq() {
+//        mqSender.send("hello mq");
+//        return Result.success("hello hello");
+//    }
+
 
     @RequestMapping("/redis")
     @ResponseBody
@@ -56,7 +67,7 @@ public class SampleController {
         return "hello";
     }
 
-    public Result<Object> error(){
+    public Result<Object> error() {
         return Result.error(CodeMsg.SERVER_ERROR);
     }
 }
