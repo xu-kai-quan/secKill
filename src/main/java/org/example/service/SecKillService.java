@@ -5,6 +5,8 @@ import org.example.entity.SecKillOrder;
 import org.example.entity.SecKillUser;
 import org.example.redis.RedisService;
 import org.example.redis.SecKillKey;
+import org.example.util.MD5Util;
+import org.example.util.UUIDUtil;
 import org.example.vo.GoodsVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,4 +66,17 @@ public class SecKillService {
     }
 
 
+    public boolean checkPath(SecKillUser user, long goodsId, String path) {
+        if (user == null || path == null){
+            return false;
+        }
+        String pathOld = redisService.get(SecKillKey.getSecKillPath, "" + user.getId() + "_" + goodsId, String.class);
+        return path.equals(pathOld);
+    }
+
+    public String createSecKillPath(SecKillUser user, long goodsId) {
+        String str = MD5Util.md5(UUIDUtil.uuid() + "123456");
+        redisService.set(SecKillKey.getSecKillPath, "" + user.getId() + "_" + goodsId, str);
+        return str;
+    }
 }

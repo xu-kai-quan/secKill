@@ -6,19 +6,19 @@ import org.example.rabbitmq.MQSender;
 import org.example.rabbitmq.SecKillMessage;
 import org.example.redis.GoodsKey;
 import org.example.redis.RedisService;
+import org.example.redis.SecKillKey;
 import org.example.result.CodeMsg;
 import org.example.result.Result;
 import org.example.service.GoodsService;
 import org.example.service.OrderService;
 import org.example.service.SecKillService;
+import org.example.util.MD5Util;
+import org.example.util.UUIDUtil;
 import org.example.vo.GoodsVo;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -66,12 +66,19 @@ public class secKillController implements InitializingBean {
     }
 
 
-    @RequestMapping(value = "/do_secKill", method = RequestMethod.POST)
+    @RequestMapping(value = "/{path}/do_secKill", method = RequestMethod.POST)
     @ResponseBody
-    public Result<Integer> list(Model model, SecKillUser user, @RequestParam("goodsId") long goodsId) {
+    public Result<Integer> secKill(Model model, SecKillUser user,
+                                   @RequestParam("goodsId") long goodsId,
+                                   @PathVariable("path") String path) {
         model.addAttribute("user", user);
         if (user == null) {
             return Result.error(CodeMsg.SERVER_ERROR);
+        }
+        //验证path
+        boolean check = secKillService.checkPath(user, goodsId, path);
+        if (!check){
+            return Result.error(CodeMsg.REQUEST_ILLEGAL);
         }
         //内存标记，减少redis访问
         Boolean over = localOverMap.get(goodsId);
@@ -134,5 +141,15 @@ public class secKillController implements InitializingBean {
         return Result.success(result);
     }
 
+    @RequestMapping(value = "/path", method = RequestMethod.GET)
+    @ResponseBody
+    public Result<String> getSecKillPath(Model model, SecKillUser user, @RequestParam("goodsId") long goodsId) {
+        model.addAttribute("user", user);
+        if (user == null) {
+            return Result.error(CodeMsg.SERVER_ERROR);
+        }
+        String path = secKillService.createSecKillPath(user, goodsId);
+        return Result.success(path);
+    }
 
 }

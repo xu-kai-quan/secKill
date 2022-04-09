@@ -51,7 +51,7 @@
                 <!--                    <button class="btn btn-primary btn-block" type="submit" id="buyButton">立即秒杀</button>-->
                 <!--                    <input type="hidden" name="goodsId" id="goodsId"/>-->
                 <!--                </form>-->
-                <button class="btn btn-primary btn-block" type="button" id="buyButton" onclick="doSecKill()">立即秒杀
+                <button class="btn btn-primary btn-block" type="button" id="buyButton" onclick="getSecKillPath()">立即秒杀
                 </button>
                 <input type="hidden" name="goodsId" id="goodsId"/>
             </td>
@@ -72,6 +72,30 @@
 </div>
 </body>
 <script>
+
+    function getSecKillPath() {
+        const goodsId = $("#goodsId").val();
+        g_showLoading();
+        $.ajax({
+            url: "/secKill/path",
+            type: "GET",
+            data: {
+                goodsId: goodsId,
+            },
+            success: function (data) {
+                if (data.code == 0) {
+                    let path = data.data;
+                    doSecKill(path);
+                } else {
+                    layer.msg(data.msg);
+                }
+            },
+            error: function () {
+                layer.msg("客户端请求有误");
+            }
+        });
+    }
+
     function getSecKillResult(goodsId) {
         g_showLoading();
         $.ajax({
@@ -108,9 +132,9 @@
         });
     }
 
-    function doSecKill() {
+    function doSecKill(path) {
         $.ajax({
-            url: "/secKill/do_secKill",
+            url: "/secKill/"+path+"/do_secKill",
             type: "POST",
             data: {
                 goodsId: $("#goodsId").val()
