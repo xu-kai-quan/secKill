@@ -20,7 +20,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.imageio.ImageIO;
 import javax.inject.Inject;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -143,13 +148,38 @@ public class secKillController implements InitializingBean {
 
     @RequestMapping(value = "/path", method = RequestMethod.GET)
     @ResponseBody
-    public Result<String> getSecKillPath(Model model, SecKillUser user, @RequestParam("goodsId") long goodsId) {
+    public Result<String> getSecKillPath(Model model, SecKillUser user,
+                                         @RequestParam("goodsId") long goodsId,
+                                         @RequestParam("verifyCode") int verifyCode ) {
         model.addAttribute("user", user);
         if (user == null) {
-            return Result.error(CodeMsg.SERVER_ERROR);
+            return Result.error(CodeMsg.SEC_KILL_FAIL);
+        }
+        boolean check = secKillService.checkVerifyCode(user,goodsId,verifyCode);
+        if (!check){
+            return Result.error(CodeMsg.REQUEST_ILLEGAL);
         }
         String path = secKillService.createSecKillPath(user, goodsId);
         return Result.success(path);
+    }
+    @RequestMapping(value = "/verifyCode", method = RequestMethod.GET)
+    @ResponseBody
+    public Result<String> getSecKillVerifyCode(HttpServletResponse response, SecKillUser user, @RequestParam("goodsId") long goodsId) {
+        if (user == null) {
+            return Result.error(CodeMsg.SERVER_ERROR);
+        }
+        BufferedImage image = secKillService.createSecKillVerifyCode(user, goodsId);
+        try{
+            OutputStream out = response.getOutputStream();
+            ImageIO.write(image,"JPEG",out);
+            out.flush();
+            out.close();
+            return null;
+        }catch (Exception e){
+            e.printStackTrace();
+            return Result.error(CodeMsg.SERVER_ERROR);
+        }
+
     }
 
 }

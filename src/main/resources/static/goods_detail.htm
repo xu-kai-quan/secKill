@@ -51,8 +51,13 @@
                 <!--                    <button class="btn btn-primary btn-block" type="submit" id="buyButton">立即秒杀</button>-->
                 <!--                    <input type="hidden" name="goodsId" id="goodsId"/>-->
                 <!--                </form>-->
-                <button class="btn btn-primary btn-block" type="button" id="buyButton" onclick="getSecKillPath()">立即秒杀
-                </button>
+                <div class="row">
+                    <div class="form-inline">
+                        <img id = "verifyCodeImg" width="80" height="32" style="display: none" onclick = "refreshVerifyCode()"/>
+                        <input id = "verifyCode" class="form-control" width="80" height="32" style="display: none" />
+                        <button class="btn btn-primary" type="button" id="buyButton" onclick="getSecKillPath()">立即秒杀</button>
+                    </div>
+                </div>
                 <input type="hidden" name="goodsId" id="goodsId"/>
             </td>
         </tr>
@@ -60,6 +65,7 @@
             <td>商品原价</td>
             <td colspan="3" id="goodsPrice"></td>
         </tr>
+
         <tr>
             <td>秒杀价</td>
             <td colspan="3" id="secPrice"></td>
@@ -81,6 +87,7 @@
             type: "GET",
             data: {
                 goodsId: goodsId,
+                verifyCode:$("#verifyCode").val()
             },
             success: function (data) {
                 if (data.code == 0) {
@@ -140,7 +147,7 @@
                 goodsId: $("#goodsId").val()
             },
             success: function (data) {
-                if (data.code == 0) {
+                if (data.code === 0) {
                     // window.location.href="/order_detail.htm?orderId="+data.data.id;
                     getSecKillResult($("#goodsId").val());
                 } else {
@@ -218,11 +225,18 @@
                 clearTimeout(timeout);
             }
             $("#secKillTip").html("秒杀进行中");
+            $("#verifyCodeImg").attr("src","secKill/verifyCode?goodsId="+$("#goodsId").val());
+            $("#verifyCodeImg").show();
+            $("#verifyCode").show();
         } else {//秒杀已经结束
             $("#buyButton").attr("disabled", true);
             $("#secKillTip").html("秒杀已经结束");
+            $("#verifyCodeImg").hide();
+            $("#verifyCode").hide();
         }
     }
-
+    function refreshVerifyCode() {
+        $("#verifyCodeImg").attr("src","secKill/verifyCode?goodsId="+$("#goodsId").val()+"&timestamp="+new Date().getTime());
+    }
 </script>
 </html>
