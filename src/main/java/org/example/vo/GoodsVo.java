@@ -10,6 +10,16 @@ public class GoodsVo extends Goods {
     private Date startDate;
     private Date endDate;
 
+    public GoodsVo() {
+    }
+
+    public GoodsVo(Double secKillPrice, Integer stockCount, Date startDate, Date endDate) {
+        this.secKillPrice = secKillPrice;
+        this.stockCount = stockCount;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+
     public Double getSecKillPrice() {
         return secKillPrice;
     }

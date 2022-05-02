@@ -12,4 +12,7 @@ public interface UsersDao {
 
     @Update("update USERS set password = #{password} where id = #{id}")
     public void updatePassword(SecKillUser toBeUpdate);
+
+    @Update("insert into USERS (id,nickname,password,salt,register_date) values (#{id},#{nickname},#{password},#{salt},now())")
+    public void insertNewUser(SecKillUser toBeSet);
 }

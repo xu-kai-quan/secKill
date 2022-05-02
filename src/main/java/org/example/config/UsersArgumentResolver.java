@@ -1,5 +1,6 @@
 package org.example.config;
 
+import org.example.access.UserContext;
 import org.example.entity.SecKillUser;
 import org.example.service.UsersService;
 import org.springframework.core.MethodParameter;
@@ -33,30 +34,7 @@ public class UsersArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public Object resolveArgument(MethodParameter methodParameter, ModelAndViewContainer modelAndViewContainer, NativeWebRequest nativeWebRequest, WebDataBinderFactory webDataBinderFactory) throws Exception {
-        HttpServletRequest request = nativeWebRequest.getNativeRequest(HttpServletRequest.class);
-        HttpServletResponse response = nativeWebRequest.getNativeResponse(HttpServletResponse.class);
-
-        String paramToken = request.getParameter(UsersService.COOKIE_NAME_TOKEN);
-        String cookieToken = getCookieValue(request, UsersService.COOKIE_NAME_TOKEN);
-
-
-        if (StringUtils.isEmpty(cookieToken) && StringUtils.isEmpty(paramToken)) {
-            return null;
-        }
-        String token = StringUtils.isEmpty(paramToken) ? cookieToken : paramToken;
-        return usersService.getByToken(response, token);
+        return UserContext.getUser();
     }
 
-    private String getCookieValue(HttpServletRequest request, String cookieName) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null || cookies.length <= 0) {
-            return null;
-        }
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals(cookieName)) {
-                return cookie.getValue();
-            }
-        }
-        return null;
-    }
 }

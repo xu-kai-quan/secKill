@@ -17,6 +17,7 @@ import org.thymeleaf.util.StringUtils;
 import javax.inject.Inject;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Random;
 
 @Service
 public class UsersService {
@@ -110,5 +111,25 @@ public class UsersService {
         response.addCookie(cookie);
     }
 
+    public void register(HttpServletResponse response, LoginVo loginVo) {
+        if (loginVo == null) {
+            throw new GlobalException(CodeMsg.SERVER_ERROR);
+        }
+        String mobile = loginVo.getMobile();
+        String formPass = loginVo.getPassword();
+        //判断手机号是否存在
+        SecKillUser user = getById(Long.parseLong(mobile));
+        if (user != null) {
+            throw new GlobalException(CodeMsg.MOBILE_EXIST);
+        }
+        //存到数据库中
+        SecKillUser users = new SecKillUser();
+        users.setPassword(MD5Util.inputPassToFormPass(formPass));
+        Random random = new Random();
+        users.setNickname("a" + random.nextInt(26) + "a" + random.nextInt(26));
+        users.setSalt("1a2b3c4d");
+        users.setId(Long.parseLong(mobile));
+        usersDao.insertNewUser(users);
+    }
 
 }

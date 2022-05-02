@@ -60,4 +60,8 @@ public class OrderService {
     public OrderInfo getOrderById(long orderId) {
         return orderDao.getOrderById(orderId);
     }
+
+    public void paySuccess(OrderInfo order) {
+         orderDao.paySuccess(order);
+    }
 }

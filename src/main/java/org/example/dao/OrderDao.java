@@ -20,4 +20,7 @@ public interface OrderDao {
 
     @Select("select * from ORDER_INFO where id = #{orderId}")
     OrderInfo getOrderById(@Param("orderId") long orderId);
+
+    @Update("update ORDER_INFO set status =#{status}")
+    void paySuccess(OrderInfo order);
 }

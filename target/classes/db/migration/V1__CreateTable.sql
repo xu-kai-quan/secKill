@@ -5,8 +5,8 @@ CREATE TABLE USERS
     `password`        varchar(32)  DEFAULT NULL COMMENT 'MD5(MD5(pass明文+固定salt) + salt)',
     `salt`            varchar(10)  DEFAULT NULL,
     `head`            varchar(128) DEFAULT NULL COMMENT '头像，云存储的ID',
-    `register_date`   TIMESTAMP    DEFAULT NULL COMMENT '注册时间',
-    `last_login_date` TIMESTAMP    DEFAULT NULL COMMENT '上蔟登录时间',
+    `register_date`   TIMESTAMP    DEFAULT NOW() COMMENT '注册时间',
+    `last_login_date` TIMESTAMP    DEFAULT NULL COMMENT '上次登录时间',
     `login_count`     int          DEFAULT '0' COMMENT '登录次数',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB
@@ -27,7 +27,7 @@ CREATE TABLE `GOODS`
 
 CREATE TABLE `SEC_KILL_GOODS`
 (
-    `id`            bigint NOT NULL AUTO_INCREMENT COMMENT '秒杀的商品表',
+    `id`            bigint NOT NULL AUTO_INCREMENT COMMENT '秒杀商品id',
     `goods_id`      bigint         DEFAULT NULL COMMENT '商品Id',
     `secKill_price` decimal(10, 2) DEFAULT '0.00' COMMENT '秒杀价',
     `stock_count`   int            DEFAULT NULL COMMENT '库存数量',
@@ -42,8 +42,8 @@ CREATE TABLE `ORDER_INFO`
     `id`               bigint NOT NULL AUTO_INCREMENT,
     `user_id`          bigint         DEFAULT NULL COMMENT '用户ID',
     `goods_id`         bigint         DEFAULT NULL COMMENT '商品ID',
-    `delivery_addr_id` bigint         DEFAULT NULL COMMENT '收获地址ID',
-    `goods_name`       varchar(16)    DEFAULT NULL COMMENT '冗余过来的商品名称',
+    `delivery_addr_id` bigint         DEFAULT NULL COMMENT '收货地址ID',
+    `goods_name`       varchar(16)    DEFAULT NULL COMMENT '商品名称',
     `goods_count`      int            DEFAULT '0' COMMENT '商品数量',
     `goods_price`      decimal(10, 2) DEFAULT '0.00' COMMENT '商品单价',
     `order_channel`    tinyint        DEFAULT '0' COMMENT '1pc，2android，3ios',
